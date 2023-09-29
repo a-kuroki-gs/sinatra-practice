@@ -2,17 +2,42 @@
 
 require 'sinatra'
 require 'sinatra/reloader'
-require 'sinatra/json'
+require 'pg'
 require 'cgi'
 
-FILE_PATH = 'public/memoapp.json'
+conn = PG.connect(dbname: 'memoapp')
 
-def get_memos(file_path)
-  File.open(file_path) { |file| JSON.parse(file.read) }
+def get_memos(conn)
+  result = conn.exec('SELECT * FROM Memos ORDER BY id')
+  memos = {}
+  result.each do |row|
+    memos[row['id']] = {
+      'title' => row['title'].force_encoding('UTF-8'),
+      'content' => row['content'].force_encoding('UTF-8')
+    }
+  end
+  memos
 end
 
-def set_memos(file_path, memos)
-  File.open(file_path, 'w') { |file| JSON.dump(memos, file) }
+def set_memos(conn, id, new_memo)
+  conn.exec_params(
+    'INSERT INTO Memos VALUES ($1, $2, $3)',
+    [id, new_memo['title'], new_memo['content']]
+  )
+end
+
+def update_memos(conn, id, new_memo)
+  conn.exec_params(
+    'UPDATE Memos SET title=$1, content=$2 WHERE id=$3',
+    [new_memo['title'], new_memo['content'], id]
+  )
+end
+
+def delete_memos(conn, id)
+  conn.exec_params(
+    'DELETE FROM Memos WHERE id=$1',
+    [id]
+  )
 end
 
 get '/' do
@@ -20,16 +45,17 @@ get '/' do
 end
 
 get '/memos' do
-  @memos = get_memos(FILE_PATH)
+  @memos = get_memos(conn)
   erb :memos, layout: :layout
 end
 
 get '/memos/new' do
+  @memos = get_memos(conn)
   erb :new, layout: :layout
 end
 
 get '/memos/:id' do
-  memos = get_memos(FILE_PATH)
+  memos = get_memos(conn)
   @id = params[:id]
   @title = memos[@id]['title']
   @content = memos[@id]['content']
@@ -41,16 +67,16 @@ post '/memos' do
   title = CGI.escapeHTML(params[:title])
   content = CGI.escapeHTML(params[:content])
 
-  memos = get_memos(FILE_PATH)
+  memos = get_memos(conn)
   id = memos.empty? ? 1 : (memos.keys.map(&:to_i).max + 1).to_s
-  memos[id] = { 'title' => title, 'content' => content }
-  set_memos(FILE_PATH, memos)
+  new_memo = { 'title' => title, 'content' => content }
+  set_memos(conn, id, new_memo)
 
   redirect "/memos/#{id}"
 end
 
 get '/memos/:id/edit' do
-  memos = get_memos(FILE_PATH)
+  memos = get_memos(conn)
   @id = params[:id]
   @title = memos[@id]['title']
   @content = memos[@id]['content']
@@ -63,9 +89,8 @@ patch '/memos/:id' do
   content = CGI.escapeHTML(params[:content])
   id = params[:id]
 
-  memos = get_memos(FILE_PATH)
-  memos[id] = { 'title' => title, 'content' => content }
-  set_memos(FILE_PATH, memos)
+  new_memo = { 'title' => title, 'content' => content }
+  update_memos(conn, id, new_memo)
 
   redirect "/memos/#{id}"
 end
@@ -73,9 +98,7 @@ end
 delete '/memos/:id' do
   id = params[:id]
 
-  memos = get_memos(FILE_PATH)
-  memos.delete(id)
-  set_memos(FILE_PATH, memos)
+  delete_memos(conn, id)
 
   redirect '/memos'
 end

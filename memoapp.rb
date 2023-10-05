@@ -15,6 +15,13 @@ def set_memos(file_path, memos)
   File.open(file_path, 'w') { |file| JSON.dump(memos, file) }
 end
 
+def get_memos_from_id(memos, id)
+  title = memos[id]['title']
+  content = memos[id]['content']
+
+  [title, content]
+end
+
 get '/' do
   erb :home, layout: :layout
 end
@@ -31,8 +38,7 @@ end
 get '/memos/:id' do
   memos = get_memos(FILE_PATH)
   @id = params[:id]
-  @title = memos[@id]['title']
-  @content = memos[@id]['content']
+  @title, @content = get_memos_from_id(memos, @id)
 
   erb :show, layout: :layout
 end
@@ -52,8 +58,7 @@ end
 get '/memos/:id/edit' do
   memos = get_memos(FILE_PATH)
   @id = params[:id]
-  @title = memos[@id]['title']
-  @content = memos[@id]['content']
+  @title, @content = get_memos_from_id(memos, @id)
 
   erb :edit, layout: :layout
 end

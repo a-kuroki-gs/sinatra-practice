@@ -19,6 +19,13 @@ def get_memos(conn)
   memos
 end
 
+def get_memos_from_id(memos, id)
+  title = memos[id]['title']
+  content = memos[id]['content']
+
+  [title, content]
+end
+
 def set_memos(conn, id, new_memo)
   conn.exec_params(
     'INSERT INTO Memos VALUES ($1, $2, $3)',
@@ -57,8 +64,7 @@ end
 get '/memos/:id' do
   memos = get_memos(conn)
   @id = params[:id]
-  @title = memos[@id]['title']
-  @content = memos[@id]['content']
+  @title, @content = get_memos_from_id(memos, @id)
 
   erb :show, layout: :layout
 end
@@ -78,8 +84,7 @@ end
 get '/memos/:id/edit' do
   memos = get_memos(conn)
   @id = params[:id]
-  @title = memos[@id]['title']
-  @content = memos[@id]['content']
+  @title, @content = get_memos_from_id(memos, @id)
 
   erb :edit, layout: :layout
 end

@@ -5,17 +5,19 @@ require 'sinatra/reloader'
 require 'sinatra/json'
 require 'cgi'
 
-FILE_PATH = 'public/memoapp.json'
+FILE_PATH = 'memoapp.json'
 
-def get_memos(file_path)
-  File.open(file_path) { |file| JSON.parse(file.read) }
+def read_memos
+  File.open(FILE_PATH) { |file| JSON.parse(file.read) }
 end
 
-def set_memos(file_path, memos)
-  File.open(file_path, 'w') { |file| JSON.dump(memos, file) }
+def save_memos(memos)
+  File.open(FILE_PATH, 'w') { |file| JSON.dump(memos, file) }
 end
 
-def get_memos_from_id(memos, id)
+def read_memo_from_id(id)
+  memos = File.open(FILE_PATH) { |file| JSON.parse(file.read) }
+
   title = memos[id]['title']
   content = memos[id]['content']
 
@@ -27,7 +29,7 @@ get '/' do
 end
 
 get '/memos' do
-  @memos = get_memos(FILE_PATH)
+  @memos = read_memos
   erb :memos, layout: :layout
 end
 
@@ -36,9 +38,8 @@ get '/memos/new' do
 end
 
 get '/memos/:id' do
-  memos = get_memos(FILE_PATH)
   @id = params[:id]
-  @title, @content = get_memos_from_id(memos, @id)
+  @title, @content = read_memo_from_id(@id)
 
   erb :show, layout: :layout
 end
@@ -47,18 +48,17 @@ post '/memos' do
   title = CGI.escapeHTML(params[:title])
   content = CGI.escapeHTML(params[:content])
 
-  memos = get_memos(FILE_PATH)
+  memos = read_memos
   id = memos.empty? ? 1 : (memos.keys.map(&:to_i).max + 1).to_s
   memos[id] = { 'title' => title, 'content' => content }
-  set_memos(FILE_PATH, memos)
+  save_memos(memos)
 
   redirect "/memos/#{id}"
 end
 
 get '/memos/:id/edit' do
-  memos = get_memos(FILE_PATH)
   @id = params[:id]
-  @title, @content = get_memos_from_id(memos, @id)
+  @title, @content = read_memo_from_id(@id)
 
   erb :edit, layout: :layout
 end
@@ -68,9 +68,9 @@ patch '/memos/:id' do
   content = CGI.escapeHTML(params[:content])
   id = params[:id]
 
-  memos = get_memos(FILE_PATH)
+  memos = read_memos
   memos[id] = { 'title' => title, 'content' => content }
-  set_memos(FILE_PATH, memos)
+  save_memos(memos)
 
   redirect "/memos/#{id}"
 end
@@ -78,9 +78,9 @@ end
 delete '/memos/:id' do
   id = params[:id]
 
-  memos = get_memos(FILE_PATH)
+  memos = read_memos
   memos.delete(id)
-  set_memos(FILE_PATH, memos)
+  save_memos(memos)
 
   redirect '/memos'
 end

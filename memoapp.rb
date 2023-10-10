@@ -57,7 +57,6 @@ get '/memos' do
 end
 
 get '/memos/new' do
-  @memos = get_memos(conn)
   erb :new, layout: :layout
 end
 

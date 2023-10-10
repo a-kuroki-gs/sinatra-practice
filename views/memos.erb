@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>home</title>
+</head>
+<body>
+  <h1>メモアプリ</h1>
+  <form action="/memos/new" method="GET">
+    <div>
+      <input type="submit" class="btn btn-primary" value="新規メモを追加">
+    </div>
+  </form>
+  <ul>
+    <% @memos.each do |id, memo| %>
+      <li>
+        <a href="/memos/<%= id %>"><%= memo["title"] %></a>
+      </li>
+    <% end %>
+  </ul>
+</body>
+</html>

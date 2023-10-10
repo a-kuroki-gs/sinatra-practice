@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>show</title>
+</head>
+<body>
+  <h1>メモアプリ</h1>
+  <h2>メモの内容詳細</h2>
+  <div class="border rounded title-box">
+    <%= @title %>
+  </div>
+  <div class="border rounded content-box">
+    <%= @content.gsub(/\n/, '<br/>') %>
+  </div>
+
+  <div>
+    <form action="/memos/<%= @id %>/edit" method="GET">
+      <input type="submit" class="btn btn-primary d-grid gap-2 col-6 mx-auto" value="変更">
+    </form>
+    <form action="/memos/<%= @id %>" method="POST">
+      <input type="hidden" name="_method" value="DELETE">
+      <input type="submit" class="btn btn-danger d-grid gap-2 col-6 mx-auto" value="削除">
+    </form>
+    <form action="/memos" method="GET">
+      <input type="submit" class="btn btn-secondary d-grid gap-2 col-6 mx-auto" value="戻る">
+    </form>
+  </div>
+</body>
+</html>

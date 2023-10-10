@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>new</title>
+</head>
+<body>
+  <h1>メモアプリ</h1>
+  <h2>新規メモの作成</h2>
+  <form action="/memos" method="POST">
+    <div class="form-group">
+      <input type="text" class="form-control" name="title">
+    </div>
+    <div class="form-group">
+      <textarea class="form-control h-300" name="content"></textarea>
+    </div>
+    <div>
+      <input type="submit" class="btn btn-primary d-grid gap-2 col-6 mx-auto" value="保存">
+    </div>
+  </form>
+  <form action="/memos" method="GET">
+    <div class="d-grid gap-2 col-6 mx-auto">
+      <input type="submit" class="btn btn-secondary " value="戻る">
+    </div>
+  </form>
+</body>
+</html>

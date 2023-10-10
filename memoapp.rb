@@ -19,9 +19,15 @@ def read_memos(conn)
   memos
 end
 
-def get_memos_from_id(memos, id)
-  title = memos[id]['title']
-  content = memos[id]['content']
+def read_memo_from_id(conn, id)
+  memo =
+    conn.exec_params(
+      'SELECT * FROM Memos WHERE id=$1',
+      [id]
+    )
+
+  title = memo.field_values('title')[0].force_encoding('UTF-8')
+  content = memo.field_values('content')[0].force_encoding('UTF-8')
 
   [title, content]
 end
@@ -61,9 +67,8 @@ get '/memos/new' do
 end
 
 get '/memos/:id' do
-  memos = get_memos(conn)
   @id = params[:id]
-  @title, @content = get_memos_from_id(memos, @id)
+  @title, @content = read_memo_from_id(conn, @id)
 
   erb :show, layout: :layout
 end
@@ -81,9 +86,8 @@ post '/memos' do
 end
 
 get '/memos/:id/edit' do
-  memos = get_memos(conn)
   @id = params[:id]
-  @title, @content = get_memos_from_id(memos, @id)
+  @title, @content = read_memo_from_id(conn, @id)
 
   erb :edit, layout: :layout
 end

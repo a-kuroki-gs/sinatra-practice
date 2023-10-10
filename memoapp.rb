@@ -7,7 +7,7 @@ require 'cgi'
 
 conn = PG.connect(dbname: 'memoapp')
 
-def get_memos(conn)
+def read_memos(conn)
   result = conn.exec('SELECT * FROM Memos ORDER BY id')
   memos = {}
   result.each do |row|
@@ -26,7 +26,7 @@ def get_memos_from_id(memos, id)
   [title, content]
 end
 
-def set_memos(conn, id, new_memo)
+def save_memos(conn, id, new_memo)
   conn.exec_params(
     'INSERT INTO Memos VALUES ($1, $2, $3)',
     [id, new_memo['title'], new_memo['content']]
@@ -52,7 +52,7 @@ get '/' do
 end
 
 get '/memos' do
-  @memos = get_memos(conn)
+  @memos = read_memos(conn)
   erb :memos, layout: :layout
 end
 
@@ -72,10 +72,10 @@ post '/memos' do
   title = CGI.escapeHTML(params[:title])
   content = CGI.escapeHTML(params[:content])
 
-  memos = get_memos(conn)
+  memos = read_memos(conn)
   id = memos.empty? ? 1 : (memos.keys.map(&:to_i).max + 1).to_s
   new_memo = { 'title' => title, 'content' => content }
-  set_memos(conn, id, new_memo)
+  save_memos(conn, id, new_memo)
 
   redirect "/memos/#{id}"
 end

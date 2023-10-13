@@ -12,8 +12,8 @@ def read_memos(conn)
   memos = {}
   result.each do |row|
     memos[row['id']] = {
-      'title' => row['title'].force_encoding('UTF-8'),
-      'content' => row['content'].force_encoding('UTF-8')
+      'title' => row['title'],
+      'content' => row['content']
     }
   end
   memos
@@ -26,8 +26,8 @@ def read_memo_from_id(conn, id)
       [id]
     )
 
-  title = memo.field_values('title')[0].force_encoding('UTF-8')
-  content = memo.field_values('content')[0].force_encoding('UTF-8')
+  title = memo.field_values('title')[0]
+  content = memo.field_values('content')[0]
 
   [title, content]
 end

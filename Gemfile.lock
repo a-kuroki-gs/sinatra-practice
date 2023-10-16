@@ -49,6 +49,7 @@ GEM
     parser (3.2.2.3)
       ast (~> 2.4.1)
       racc
+    pg (1.5.4)
     racc (1.7.1)
     rack (2.2.8)
     rack-protection (3.1.0)
@@ -61,7 +62,6 @@ GEM
       loofah (~> 2.21)
       nokogiri (~> 1.14)
     rainbow (3.1.1)
-    redcarpet (3.6.0)
     regexp_parser (2.8.1)
     rexml (3.2.6)
     rubocop (1.56.3)
@@ -109,7 +109,7 @@ PLATFORMS
 
 DEPENDENCIES
   erb_lint
-  redcarpet
+  pg
   rubocop
   rubocop-fjord
   sinatra
